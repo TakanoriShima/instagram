@@ -1,10 +1,11 @@
 <?php
     session_start();
+    //var_dump($_SESSION);
     $flash_message = "";
     if(isset($_SESSION['flash_message']) === true || isset($_SESSION['usre_id']) === true){
         $flash_message = $_SESSION['flash_message'];
-        session_destroy();
     }
+    session_destroy();
 ?>
 <!DOCTYPE html>
 <html lang="ja">

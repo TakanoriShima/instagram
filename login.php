@@ -1,8 +1,9 @@
 <?php
-
+    //var_dump($_SESSION);
     $dsn = 'mysql:host=localhost;dbname=instagram';
     $db_username = 'root';
     $db_password = '';
+    $flash_message = "";
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         session_start();
@@ -48,8 +49,8 @@
             echo 'PDO exception: ' . $e->getMessage();
             exit;
         }
-    }else{
-        if(isset($_SESSION['user_id']) === false){
+    }else{ //GET通信
+        if(isset($_SESSION['user_id']) === null){
             $flash_message = "不正アクセスです。ログインしてください。";
             $_SESSION['flash_message'] = $flash_message;
         }

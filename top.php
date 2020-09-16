@@ -42,7 +42,7 @@
         $flash_message = "不正アクセスです！ログインしてください";
         $_SESSION['flash_message'] = $flash_message;
         
-        header('Location: login.php');
+        header('Location: index.php');
         exit;
     }
     
