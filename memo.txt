@@ -1,0 +1,32 @@
+create database instagram default character set utf8;
+use instagram;
+drop table users;
+create table users(
+    id int primary key auto_increment, 
+    name varchar(50) not null,
+    nickname varchar(50) not null,
+    email varchar(100) not null,
+    password varchar(100) not null,
+    image varchar(100),
+    profile varchar(500),
+    created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at timestamp,
+    last_logined_at timestamp
+);
+desc users;
+/*
++-----------------+--------------+------+-----+---------------------+-----------------------------+
+| Field           | Type         | Null | Key | Default             | Extra                       |
++-----------------+--------------+------+-----+---------------------+-----------------------------+
+| id              | int(11)      | NO   | PRI | NULL                | auto_increment              |
+| name            | varchar(50)  | NO   |     | NULL                |                             |
+| nickname        | varchar(50)  | NO   |     | NULL                |                             |
+| email           | varchar(100) | NO   |     | NULL                |                             |
+| password       | varchar(100) | NO   |     | NULL                |                             |
+| image           | varchar(100) | YES  |     | NULL                |                             |
+| profile         | varchar(500) | YES  |     | NULL                |                             |
+| created_at      | timestamp    | NO   |     | CURRENT_TIMESTAMP   | on update CURRENT_TIMESTAMP |
+| updated_at      | timestamp    | NO   |     | 0000-00-00 00:00:00 |                             |
+| last_logined_at | timestamp    | NO   |     | 0000-00-00 00:00:00 |                             |
++-----------------+--------------+------+-----+---------------------+-----------------------------+
+*/
