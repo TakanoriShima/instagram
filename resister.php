@@ -44,10 +44,13 @@
                 
                 $stmt->execute();
                 
+                $user_id = $pdo->lastInsertId();
+                $_SESSION['user_id'] = $user_id;
                 $flash_message = "新規ユーザ登録が成功しました。";
                 $_SESSION['flash_message'] = $flash_message;
                 
-                header('Location: login.php');
+                header('Location: top.php');
+                exit;
             
             }
             
