@@ -27,6 +27,7 @@
             $stmt->execute();
             
             $user = $stmt->fetch();
+            $filePath = 'uploads/' . $user['image'];
             
             if(isset($_SESSION['flash_message']) === true){
                 $flash_message = $_SESSION['flash_message'];
@@ -65,22 +66,32 @@
                 color: red;
                 background-color: pink;
             }
+            .profile_image{
+                object-fit: cover;
+                border-radius: 50%;
+                width: 15vw;
+                height: 15vw;
+            }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="row mt-2">
-                <div class="col-12 text-center">
-                    <h1><?php print $user['name']; ?> さん、ようこそ！</h1>
+                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h2>
+            </div>
+            <div class="row mt-5">
+                <div class="col-3 text-center">
+                    <img src="<?php print 'uploads/users/' . $user['image']; ?>" class="profile_image"> 
+                </div>
+                <div class="offset-sm-1 col-4 text-left">
+                    <h3><?php print $user['name']; ?> </h3>
                 </div>
             </div>
 
             <div class="row mt-2">
                 <h1 class=" col-sm-12 text-center">投稿一覧</h1>
             </div>
-            <div class="row mt-2">
-                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
-            </div>
+            
      
             <div class="row">
                 <div class="col-12 text-center">
