@@ -125,9 +125,6 @@
                         <div class="col-2">
                             <input type="file" name="image" accept='image/*' onchange="previewImage(this);" class="" required　>
                         </div>
-                        <div class="col-4">
-                            <img id="preview" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="max-width:200px;">
-                        </div>
                         <canvas id="canvas" class="col-4" width="0" height="0"></canvas>
                     </div>
                     
@@ -152,14 +149,6 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
         <script>
-            // function previewImage(obj)
-            // {
-            // 	var fileReader = new FileReader();
-            // 	fileReader.onload = (function() {
-            // 		document.getElementById('preview').src = fileReader.result;
-            // 	});
-            // 	fileReader.readAsDataURL(obj.files[0]);
-            // }
             
             $(function() {
                 
@@ -226,37 +215,6 @@
                   image.src = e.target.result;
                 }
                 reader.readAsDataURL(file);
-              });
-            
-            
-              // アップロード開始ボタンがクリックされたら
-              $('#upload').click(function(){
-                        
-            
-                // ファイルが指定されていなければ何も起こらない
-                if(!file || !blob) {
-                    alert("ファイルが指定されていない");
-                  return;
-                }
-            
-                var name, fd = new FormData();
-                fd.append('file', blob); // ファイルを添付する
-                //alert("OK");
-                $.ajax({
-                  url: "new.php", // 送信先
-                  type: 'POST',
-                  dataType: 'json',
-                  data: fd,
-                  processData: false,
-                  contentType: false
-                })
-                .done(function( data, textStatus, jqXHR ) {
-                  alert("成功");
-                })
-                .fail(function( jqXHR, textStatus, errorThrown ) {
-                  alert("失敗");
-                });  
-            
               });
             
             });
