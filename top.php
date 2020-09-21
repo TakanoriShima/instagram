@@ -35,7 +35,7 @@
                 unset($_SESSION["flash_message"]);
             }
             
-            $stmt = $pdo->query('SELECT users.name as name, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts join users on users.id = posts.user_id order by posts.id desc');
+            $stmt = $pdo->query('SELECT posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
         } catch (PDOException $e) {
@@ -75,10 +75,25 @@
                 width: 15vw;
                 height: 15vw;
             }
+            .avator_image{
+                object-fit: cover;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+            }
             .section{
                 border: solid 1px blue;
                 margin-bottom: 20px;
                 padding: 15px;
+            }
+            a{
+                display: block;
+                width: 100%;
+                text-decoration: none;
+                color: black;
+            }
+            a p{
+                text-decoration: none;
             }
         </style>
     </head>
@@ -92,7 +107,10 @@
                     <img src="<?php print 'uploads/users/' . $user['image']; ?>" class="profile_image"> 
                 </div>
                 <div class="offset-sm-1 col-4 text-left">
-                    <h3><?php print $user['name']; ?> </h3>
+                    <h3><?php print $user['nickname']; ?> </h3>
+                </div>
+                 <div class="offset-sm-2 col-2 text-center">
+                    <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
                 </div>
             </div>
 
@@ -102,20 +120,18 @@
             <div class="row mt-2">
                 <?php foreach($posts as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
-                    <p><?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
-                    <p><?php print $post['title']; ?></p>
-                    <p><?php print $post['body']; ?></p>
-                    <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                    <a href="show.php?post_id=<?php print $post['id']; ?>">
+                        <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                        <p><?php print $post['title']; ?></p>
+                        <p><?php print $post['body']; ?></p>
+                        <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                    </a>
                 </div>
                 <?php } ?>
             </div>
             <a href="post.php" class="btn btn-primary">新規投稿</a>
      
-            <div class="row mt-3">
-                <div class="col-12 text-center">
-                   <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
-                </div>
-            </div>
+         
            </div>
         
         

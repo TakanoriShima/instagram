@@ -39,3 +39,11 @@ create table posts(
     image varchar(100),
     created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+create table comments(
+    id int primary key auto_increment, 
+    user_id int not null,
+    post_id int not null,
+    body varchar(200),
+    created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
