@@ -35,6 +35,9 @@
                 unset($_SESSION["flash_message"]);
             }
             
+            $stmt = $pdo->query('SELECT users.name as name, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts join users on users.id = posts.user_id order by posts.id desc');
+            $posts = $stmt->fetchAll();
+            
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
@@ -72,6 +75,11 @@
                 width: 15vw;
                 height: 15vw;
             }
+            .section{
+                border: solid 1px blue;
+                margin-bottom: 20px;
+                padding: 15px;
+            }
         </style>
     </head>
     <body>
@@ -91,9 +99,19 @@
             <div class="row mt-2">
                 <h1 class=" col-sm-12 text-center">投稿一覧</h1>
             </div>
-            
+            <div class="row mt-2">
+                <?php foreach($posts as $post){ ?>
+                <div class="offset-sm-3 col-sm-6 section">
+                    <p><?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                    <p><?php print $post['title']; ?></p>
+                    <p><?php print $post['body']; ?></p>
+                    <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                </div>
+                <?php } ?>
+            </div>
+            <a href="post.php" class="btn btn-primary">新規投稿</a>
      
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col-12 text-center">
                    <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
                 </div>
