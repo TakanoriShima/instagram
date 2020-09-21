@@ -22,6 +22,26 @@
             $pdo = new PDO($dsn, $db_username, $db_password, $options);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
+            if(isset($_POST['post_id']) === true){
+                if($_POST['likeOrUnlike'] === 'like'){
+                    $post_id = $_POST['post_id'];
+                    $stmt = $pdo -> prepare("INSERT INTO favorites (user_id, post_id) VALUES (:user_id, :post_id)");
+                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
+                    
+                    $stmt->execute();
+                    $flash_message = "お気に入りに追加しました。";
+                }else{
+                    $post_id = $_POST['post_id'];
+                    $stmt = $pdo -> prepare("DELETE FROM favorites where user_id=:user_id && post_id=:post_id");
+                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
+                    
+                    $stmt->execute();
+                    $flash_message = "お気に入りを削除しました。";
+                }
+            }
+            
             $stmt = $pdo->prepare('SELECT * FROM users where id = :id');
             $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
             $stmt->execute();
@@ -35,8 +55,11 @@
                 unset($_SESSION["flash_message"]);
             }
             
-            $stmt = $pdo->query('SELECT posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts join users on users.id = posts.user_id order by posts.id desc');
+            $stmt = $pdo->query('SELECT posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
+            
+            $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+            $stmt->execute();
             
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
@@ -50,7 +73,28 @@
         exit;
     }
     
+    function isLike($post_id){
+        global $user_id;
+        global $pdo;
+        $stmt = $pdo->prepare('SELECT count(*) as liked_count FROM favorites where user_id=:user_id && post_id=:post_id');
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
+        $stmt->execute();
+            
+        $liked_count = ($stmt->fetch())['liked_count'];
+        //ar_dump($liked_count);
+        return $liked_count;
+    }
     
+    function likeCount($post_id){
+        global $pdo;
+        $stmt = $pdo->prepare('SELECT count(*) as liked_count FROM favorites where post_id=:post_id');
+        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
+        $stmt->execute();
+            
+        $liked_count = ($stmt->fetch())['liked_count'];
+        return $liked_count;
+    }
     
 ?>
 <!DOCTYPE html>
@@ -126,6 +170,23 @@
                         <p><?php print $post['body']; ?></p>
                         <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
                     </a>
+                    
+                    <?php if(isLike($post['id']) == 0){ ?>
+                    
+                    <form action="top.php" method="POST">
+                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <button type="submit" name="likeOrUnlike" value="like">いいね</button>
+                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                    </form>
+                    
+                    <?php }else{ ?>
+                    <form action="top.php" method="POST">
+                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
+                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                    </form>
+                    <?php } ?>        
+                        
                 </div>
                 <?php } ?>
             </div>
