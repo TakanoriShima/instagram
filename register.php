@@ -123,9 +123,9 @@
                     <div class="form-group row">
                         <label class="col-2 col-form-label">アバター画像</label>
                         <div class="col-2">
-                            <input type="file" name="image" accept='image/*' onchange="previewImage(this);" class="" required　>
+                            <input type="file" name="image" class="" required　>
                         </div>
-                        <canvas id="canvas" class="col-4" width="0" height="0"></canvas>
+                        <canvas id="canvas" class="offset-sm-4 col-4" width="0" height="0"></canvas>
                     </div>
                     
                     <!-- 1行 -->
@@ -154,8 +154,8 @@
                 
               var file = null; // 選択されるファイル
               var blob = null; // 画像(BLOBデータ)
-              const THUMBNAIL_WIDTH = 100; // 画像リサイズ後の横の長さの最大値
-              const THUMBNAIL_HEIGHT = 100; // 画像リサイズ後の縦の長さの最大値
+              const THUMBNAIL_WIDTH = 300; // 画像リサイズ後の横の長さの最大値
+              const THUMBNAIL_HEIGHT = 300; // 画像リサイズ後の縦の長さの最大値
             
               // ファイルが選択されたら
               $('input[type=file]').change(function() {
