@@ -89,7 +89,7 @@
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
-                <form class="col-sm-12" action="resister.php" method="POST" enctype="multipart/form-data">
+                <form class="col-sm-12" action="register.php" method="POST" enctype="multipart/form-data">
                     <!-- 1行 -->
                     <div class="form-group row">
                         <label class="col-2 col-form-label">名前</label>

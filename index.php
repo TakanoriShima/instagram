@@ -35,7 +35,7 @@
             </div>
             <div class="row mt-5">
                 <div class="offset-sm-4 col-sm-2">
-                    <a href="resister.php" class="btn btn-primary">新規会員登録</a>
+                    <a href="register.php" class="btn btn-primary">新規会員登録</a>
                 </div>
                 <div class="col-sm-2">
                     <a href="login.php" class="btn btn-primary">ログイン</a>

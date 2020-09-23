@@ -47,7 +47,7 @@
             $stmt->execute();
             
             $user = $stmt->fetch();
-            $filePath = 'uploads/' . $user['image'];
+            $filePath = 'uploads/users/' . $user['image'];
             
             if(isset($_SESSION['flash_message']) === true){
                 $flash_message = $_SESSION['flash_message'];
@@ -58,8 +58,8 @@
             $stmt = $pdo->query('SELECT posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
-            $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
-            $stmt->execute();
+            // $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+            // $stmt->execute();
             
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
@@ -81,9 +81,9 @@
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
         $stmt->execute();
             
-        $liked_count = ($stmt->fetch())['liked_count'];
-        //ar_dump($liked_count);
-        return $liked_count;
+        $data = $stmt->fetch();
+        //var_dump($liked_count);
+        return $data['liked_count'];
     }
     
     function likeCount($post_id){
@@ -92,8 +92,9 @@
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
         $stmt->execute();
             
-        $liked_count = ($stmt->fetch())['liked_count'];
-        return $liked_count;
+        $data = $stmt->fetch();
+        //var_dump($liked_count);
+        return $data['liked_count'];
     }
     
 ?>
