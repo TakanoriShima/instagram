@@ -8,7 +8,7 @@
         $db_username = 'root';
         $db_password = '';
         
-        $user_id = $_GET['user_id'];
+        $user_id = (int)$_GET['user_id'];
         //var_dump($user_id);
     
         try {
@@ -19,12 +19,13 @@
                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
             ); 
            // $options = array();
+            // print "usr_id: " . $user_id;
             
             $pdo = new PDO($dsn, $db_username, $db_password, $options);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $sql = 'SELECT posts.id as post_id, users.nickname as nickname, users.image as user_image, posts.title as title, posts.body as body, posts.image as post_image, posts.created_at FROM posts join users on posts.user_id = users.id where posts.user_id=:user_id';
             $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':user_id', 5, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
             
             $stmt->execute();
             

@@ -55,7 +55,7 @@
                 unset($_SESSION["flash_message"]);
             }
             
-            $stmt = $pdo->query('SELECT posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
+            $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
             // $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
@@ -168,7 +168,7 @@
                     <a href="show.php?post_id=<?php print $post['id']; ?>">
                         <p><?php print $post['id']; ?></p>
                     </a>
-                    <a href="mypage.php?user_id=<?php print $post['id']; ?>">
+                    <a href="mypage.php?user_id=<?php print $post['post_user_id']; ?>">
                         <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
                     </a>
                         <p><?php print $post['title']; ?></p>
