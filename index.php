@@ -34,7 +34,7 @@
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h2>
             </div>
             <div class="row mt-5">
-                <div class="offset-sm-4 col-sm-2">
+                <div class="offset-sm-4 col-sm-2 text-center">
                     <a href="register.php" class="btn btn-primary">新規会員登録</a>
                 </div>
                 <div class="col-sm-2">

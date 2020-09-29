@@ -166,11 +166,15 @@
                 <?php foreach($posts as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
                     <a href="show.php?post_id=<?php print $post['id']; ?>">
+                        <p><?php print $post['id']; ?></p>
+                    </a>
+                    <a href="mypage.php?user_id=<?php print $post['id']; ?>">
                         <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                    </a>
                         <p><?php print $post['title']; ?></p>
                         <p><?php print $post['body']; ?></p>
                         <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
-                    </a>
+                    
                     
                     <?php if(isLike($post['id']) == 0){ ?>
                     
