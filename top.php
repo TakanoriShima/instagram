@@ -58,9 +58,6 @@
             $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
-            // $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
-            // $stmt->execute();
-            
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
