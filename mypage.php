@@ -25,13 +25,29 @@
             
             //var_dump($user_id);
             if($_SERVER['REQUEST_METHOD'] === 'POST'){
-                $followed_user_id = (int)$_POST['followed_user_id'];
-                // print $followed_user_id;
-                $stmt = $pdo -> prepare("INSERT INTO follow (follow_user_id, followed_user_id) VALUES (:follow_user_id, :followed_user_id)");
-                $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
-                $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
+                if($_POST['followOrUnFollow'] === 'follow'){
+                    $followed_user_id = (int)$_POST['followed_user_id'];
+                    // print $followed_user_id;
+                    $stmt = $pdo -> prepare("INSERT INTO follow (follow_user_id, followed_user_id) VALUES (:follow_user_id, :followed_user_id)");
+                    $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
+                    
+                    $stmt->execute();
+                    $flash_message = "フォローしました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                    
+                }else{
+                    $followed_user_id = (int)$_POST['followed_user_id'];
+                    // print $followed_user_id;
+                    $stmt = $pdo -> prepare("Delete From follow where follow_user_id=:follow_user_id AND followed_user_id=:followed_user_id");
+                    $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
+                    
+                    $stmt->execute();
+                    $flash_message = "フォローを解除しました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                }
                 
-                $stmt->execute();
             }
 
     
@@ -143,11 +159,13 @@
                         <?php if($follow_count == 0){ ?>
                             <form action="" method="POST">
                                 <input type="hidden" name="followed_user_id" value="<?php print $user_id; ?>">
+                                <input type="hidden" name="followOrUnFollow" value="follow">
                                 <input type="submit" value="フォローする">
                             </form>
                         <?php }else{ ?>
-                            <form action="#" method="POST">
+                            <form action="" method="POST">
                                 <input type="hidden" name="followed_user_id" value="<?php print $user_id; ?>">
+                                <input type="hidden" name="followOrUnFollow" value="unfollow">
                                 <input type="submit" value="フォローを解除する">
                             </form>
                         <?php } ?>
