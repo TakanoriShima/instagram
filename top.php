@@ -58,9 +58,27 @@
             $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
-            $stmt = $pdo->query('select users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at from users join follow on users.id=follow.followed_user_id join posts on follow.followed_user_id=posts.user_id where follow.follow_user_id=' . $user_id . ' order by posts.created_at desc');
+            $stmt = $pdo->prepare('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id where posts.user_id=:user_id');
+            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $my_posts = $stmt->fetchAll();
+            
+            $stmt = $pdo->query('select users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at from users join follow on users.id=follow.followed_user_id join posts on follow.followed_user_id=posts.user_id where follow.follow_user_id=' . $user_id);
             //$stmt->bindParam(':login_user_id', 5, PDO::PARAM_INT);
-            $timelines = $stmt->fetchAll();
+            $follow_users_posts = $stmt->fetchAll();
+
+            
+            //https://webkaru.net/php/function-array-merge-recursive/
+            $timelines = array_merge_recursive($follow_users_posts,$my_posts);
+            
+            //https://qiita.com/shy_azusa/items/54dadc55e3e71cde1445
+            foreach ((array) $timelines as $key => $value) {
+                $sort[$key] = $value['id'];
+            }
+            
+            array_multisort($sort, SORT_DESC, $timelines);
+            //print_r($array);
+            
             
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
