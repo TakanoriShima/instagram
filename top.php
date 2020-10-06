@@ -58,6 +58,10 @@
             $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
             
+            $stmt = $pdo->query('select users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at from users join follow on users.id=follow.followed_user_id join posts on follow.followed_user_id=posts.user_id where follow.follow_user_id=' . $user_id . ' order by posts.created_at desc');
+            //$stmt->bindParam(':login_user_id', 5, PDO::PARAM_INT);
+            $timelines = $stmt->fetchAll();
+            
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
@@ -137,6 +141,42 @@
             a p{
                 text-decoration: none;
             }
+            .tab_item {
+              display: none;
+            }
+            
+            .is-active-item {
+              display: block;
+            }
+            
+            /* aタグをブロック要素にする。文字色は親クラスと同様に、下線は消す */
+            a {
+              display: block;
+              color: inherit;
+              text-decoration: none;
+            }
+            
+            .tab_btn {
+              font-size: 24px;
+              padding: 5px;
+              background-color: #E0F2F7;
+            　/*display: inline-block; /* ボタンを横並びに。flexboxなどでも可 */
+              opacity: 0.5;  /* 非アクティブなボタンは半透明にする */
+              border-radius: 5px 5px 0 0;
+            }
+            
+            .is-active-btn {
+              opacity: 1;  /* アクティブなボタンは半透明を解除 */
+              color: #00BFFF; /* 文字色も変える */
+            }
+            
+            .tab_item {
+              /*width: 100%;*/
+              /*height: 1000px;*/
+              padding: 5px;
+              /*color: #00BFFF;*/
+              /*background-color: #E0F2F7;*/
+            }
         </style>
     </head>
     <body>
@@ -156,10 +196,16 @@
                 </div>
             </div>
 
-            <div class="row mt-2">
-                <h1 class=" col-sm-12 text-center">投稿一覧</h1>
+            <div class="row mt-5">
+                <div class="col-sm-6">
+                    <h1 class="text-center"><a class="tab_btn is-active-btn text-center" href="#item1">投稿一覧</a></h1>
+                </div>
+                <div class="col-sm-6">
+                    <h1 class="text-center"><a class="tab_btn text-center" href="#item2">タイムライン</a></h1>
+                </div>
             </div>
-            <div class="row mt-2">
+            <!-- 投稿一覧　-->
+            <div id="item1" class="row mt-2 tab_item is-active-item">
                 <?php foreach($posts as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
                     <a href="show.php?post_id=<?php print $post['id']; ?>">
@@ -192,8 +238,42 @@
                 </div>
                 <?php } ?>
             </div>
+            
+            <!-- タイムライン　-->
+                <?php foreach($timelines as $post){ ?>
+                <div class="offset-sm-3 col-sm-6 section">
+                    <a href="show.php?post_id=<?php print $post['id']; ?>">
+                        <p><?php print $post['id']; ?></p>
+                    </a>
+                    <a href="mypage.php?user_id=<?php print $post['post_user_id']; ?>">
+                        <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                    </a>
+                        <p><?php print $post['title']; ?></p>
+                        <p><?php print $post['body']; ?></p>
+                        <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                    
+                    
+                    <?php if(isLike($post['id']) == 0){ ?>
+                    
+                    <form action="top.php" method="POST">
+                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <button type="submit" name="likeOrUnlike" value="like">いいね</button>
+                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                    </form>
+                    
+                    <?php }else{ ?>
+                    <form action="top.php" method="POST">
+                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
+                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                    </form>
+                    <?php } ?>        
+                        
+                </div>
+                <?php } ?>
+            </div>
             <a href="post.php" class="btn btn-primary">新規投稿</a>
-     
+                 
          
            </div>
         
@@ -204,5 +284,19 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
+        <script>
+            $(function() {
+              $('.tab_btn').on('click', function(event) {
+                $('.tab_item').removeClass("is-active-item");
+                $($(this).attr("href")).addClass("is-active-item");
+            
+                //以下２行を追加
+                $('.tab_btn').removeClass('is-active-btn');
+                $(this).addClass('is-active-btn');
+                //https://www.ilovex.co.jp/blog/system/softwaredevelopment/post-27.html
+                return false;
+              });
+            });
+        </script>
     </body>
 </html>
