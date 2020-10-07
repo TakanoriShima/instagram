@@ -56,11 +56,12 @@
             }
             //count(follow.followed_user_id)
             
-            $stmt = $pdo->prepare('SELECT follow.follow_user_id as follow_users  FROM users join follow on users.id = follow.followed_user_id where follow.followed_user_id=:followed_user_id');
+            $stmt = $pdo->prepare('SELECT follow.follow_user_id as follow_users,users.nickname as nickname, users.image as image  FROM users join follow on users.id = follow.followed_user_id where follow.followed_user_id=:followed_user_id');
             $stmt->bindParam('followed_user_id', $user_id, PDO::PARAM_INT);
             $stmt->execute();
             
             $following_users = $stmt->fetchAll();
+          
             
             $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
             $posts = $stmt->fetchAll();
@@ -212,7 +213,7 @@
                 </div>
                 <div class="offset-sm-1 col-4 text-left">
                     <h3><?php print $user['nickname']; ?> </h3>
-                    <p><?php print count($following_users); ?>人にフォローされています</p>
+                    <p><a href="followd_users.php?user_id=<?php print $user_id; ?>"><?php print count($following_users);?></a>人にフォローされています</p>
                 </div>
                  <div class="offset-sm-2 col-2 text-center">
                     <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
