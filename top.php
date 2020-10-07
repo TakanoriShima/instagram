@@ -77,7 +77,7 @@
             }
             
             array_multisort($sort, SORT_DESC, $timelines);
-            //print_r($array);
+
             
             
         } catch (PDOException $e) {
@@ -258,6 +258,7 @@
             </div>
             
             <!-- タイムライン　-->
+            <div id="item2" class="row mt-2 tab_item">
                 <?php foreach($timelines as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
                     <a href="show.php?post_id=<?php print $post['id']; ?>">
@@ -289,13 +290,16 @@
                         
                 </div>
                 <?php } ?>
+                </div>
+                <div class="row mt-3 mb-3">
+                    <div class="offset-sm-4 col-sm-4">
+                        <a href="post.php" class="btn btn-primary">新規投稿</a>
+                    </div>
+                </div>
             </div>
-            <a href="post.php" class="btn btn-primary">新規投稿</a>
-                 
-         
-           </div>
-        
-        
+        </div>
+
+    
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS, then Font Awesome -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

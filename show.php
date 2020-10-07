@@ -173,6 +173,7 @@
                 </div>
             </div>
             
+            <?php if(count($comments) > 0){ ?>
             <div class="row mt-2">
                 <h1 class="text-center col-sm-12">コメント一覧</h1>
             </div>
@@ -186,6 +187,11 @@
                 <?php } ?>
                 </div>
             </div>
+            <?php }else{ ?>
+            <div class="row mt-2">
+                <p class="text-center col-sm-12">コメントはまだありません</p>
+            </div>
+            <?php } ?>
             
             <div class="row mt-2">
                 <h1 class="text-center col-sm-12">コメント投稿</h1>
