@@ -78,8 +78,6 @@
             
             array_multisort($sort, SORT_DESC, $timelines);
 
-            
-            
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
@@ -112,7 +110,6 @@
         $stmt->execute();
             
         $data = $stmt->fetch();
-        //var_dump($liked_count);
         return $data['liked_count'];
     }
     
@@ -242,14 +239,14 @@
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
                         <button type="submit" name="likeOrUnlike" value="like">いいね</button>
-                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
                         <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
-                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
                     </form>
                     <?php } ?>        
                         
@@ -277,14 +274,14 @@
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
                         <button type="submit" name="likeOrUnlike" value="like">いいね</button>
-                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
                         <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
-                        <span><?php print likeCount($post['id']); ?>いいね</span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
                     </form>
                     <?php } ?>        
                         

@@ -182,12 +182,11 @@
             <div class="row mt-2">
                 <?php foreach($my_posts as $my_post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
-                    <a href="show.php?post_id=<?php print $my_post['post_id']; ?>">
-                        <p><?php print $my_post['nickname']; ?>　<?php print $my_post['created_at']; ?></p>
-                        <p><?php print $my_post['title']; ?></p>
-                        <p><?php print $my_post['body']; ?></p>
-                        <p><img src="<?php print 'uploads/posts/' . $my_post['post_image']; ?>" style="width: 300px"></p>
-                    </a>
+                    <p><?php print $my_post['post_id']; ?></p>
+                    <p><?php print $my_post['nickname']; ?>　<?php print $my_post['created_at']; ?></p>
+                    <p><?php print $my_post['title']; ?></p>
+                    <p><?php print $my_post['body']; ?></p>
+                    <p><img src="<?php print 'uploads/posts/' . $my_post['post_image']; ?>" style="width: 300px"></p>
                 </div>
                 <?php } ?>
             </div>
