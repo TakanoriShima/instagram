@@ -14,7 +14,7 @@
             
             if($user !== false){
                 $_SESSION['flash_message'] = "ログインに成功しました。";
-                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_id'] = $user->id;
                 header('Location: top.php');
                 exit;
             }else{
@@ -26,9 +26,8 @@
             exit;
         }
     }else{ //GET通信
-        if(isset($_SESSION['user_id']) === null){
-            $flash_message = $_SESSION['flash_message'];
-        }
+        $flash_message = $_SESSION['flash_message'];
+        $_SESSION['flash_message'] = "";
     }
 
 ?>

@@ -20,10 +20,10 @@
                 $user_id = $user_dao->signup($user);
                 
                 $_SESSION['user_id'] = $user_id;
-                $flash_message = "新規ユーザ登録が成功しました。";
+                $flash_message = "新規ユーザ登録が完了し、ログインが成功しました。";
                 $_SESSION['flash_message'] = $flash_message;
                 
-                header('Location: login.php');
+                header('Location: top.php');
                 exit;
             
             }

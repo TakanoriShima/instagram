@@ -36,13 +36,27 @@ class UserDAO{
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM users WHERE id=:id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+          // フェッチの結果を、userクラスのインスタンスにマッピングする
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
+        $user = $stmt->fetch();
+        $this->close_connection($pdo, $stmp);
+        // Userクラスのインスタンスを返す
+        return $user;
+    }
+    
+    // id値からユーザ情報を取得するメソッド
+    public function get_avatar_by_id($id){
+        $pdo = $this->get_connection();
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE id=:id');
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         // フェッチの結果を、userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
         $user = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
-        // Userクラスのインスタンスを返す
-        return $user;
+        // avatar画像ファイル名を返す
+        return $user->avatar;
     }
     
     // 会員登録をするメソッド
@@ -160,8 +174,9 @@ class UserDAO{
         return $my_following_users;
     }
     
+   
     // 自分をフォローしてくれているユーザリストを取得するメソッド
-    public function get_my_followed_users ($user_id){
+    public function get_my_followed_users($user_id){
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT users.id AS id, users.name AS name, users.nickname AS nickname, users.email AS email, users.password AS password, users.avatar AS avatar, users.profile AS profile, users.created_at AS created_at, users.updated_at AS updated_at, users.last_logined_at AS last_logined_at FROM users JOIN follows ON users.id = follows.followed_user_id WHERE follows.followed_user_id = :user_id');
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
@@ -171,6 +186,19 @@ class UserDAO{
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
         return $my_followed_users;
+    }
+    
+    // 自分がフォローしたユーザの投稿リストを取得するメソッド
+    public function get_my_following_user_posts($user_id){
+        $pdo = $this->get_connection();
+        $stmt = $pdo->prepare('SELECT FROM posts JOIN users ON posts.user_id = users.id JOIN follows ON follows.follow_user_id = users.id WHERE follows.follow_user_id = :user_id');
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        // フェッチの結果を、Postクラスのインスタンスにマッピングする
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $my_following_user_posts = $stmt->fetchAll();
+        $this->close_connection($pdo, $stmp);
+        // Postクラスのインスタンスの配列を返す
+        return $my_following_user_posts;
     }
     
     // ファイルをアップロードするメソッド

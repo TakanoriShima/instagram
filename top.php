@@ -1,95 +1,78 @@
 <?php
+    require_once 'daos/UserDAO.php';
+    require_once 'daos/PostDAO.php';
+    require_once 'daos/FavoriteDAO.php';
+    require_once 'daos/FollowDAO.php';
     
     session_start();
+    $flash_message = "";
     
+    if(isset($_SESSION['flash_message']) === true){
+        $flash_message = $_SESSION['flash_message'];
+        unset($_SESSION["flash_message"]);
+    }
+    
+    // ログインしていれば
     if(isset($_SESSION['user_id']) === true){
-        $dsn = 'mysql:host=localhost;dbname=instagram';
-        $db_username = 'root';
-        $db_password = '';
         
         $user_id = $_SESSION['user_id'];
-    
-        $flash_message = "";
-    
-        try {
         
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
-            
-            $pdo = new PDO($dsn, $db_username, $db_password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
+        // いいねする、いいね解除するのボタンを押したとき
+        if($SERVER['REQUEST_METHOD'] === 'POST'){
             if(isset($_POST['post_id']) === true){
+                $post_id = $_POST['post_id'];
+                $favorite_dao = new FavoriteDAO();
+                $favorite = new Favorite($user_id, $post_id);
+                
+                // いいねボタンを押したとき
                 if($_POST['likeOrUnlike'] === 'like'){
-                    $post_id = $_POST['post_id'];
-                    $stmt = $pdo -> prepare("INSERT INTO favorites (user_id, post_id) VALUES (:user_id, :post_id)");
-                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                    $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-                    
-                    $stmt->execute();
+                    $favorite_dao->insert($favorite);
                     $flash_message = "お気に入りに追加しました。";
-                }else{
-                    $post_id = $_POST['post_id'];
-                    $stmt = $pdo -> prepare("DELETE FROM favorites where user_id=:user_id && post_id=:post_id");
-                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                    $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-                    
-                    $stmt->execute();
+                }else{ // いいね解除ボタンを押したとき
+                    $favorite_dao->delete($favorite);
                     $flash_message = "お気に入りを削除しました。";
                 }
             }
-            
-            $stmt = $pdo->prepare('SELECT * FROM users where id = :id');
-            $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $user = $stmt->fetch();
-            $filePath = 'uploads/users/' . $user['image'];
-            
-            if(isset($_SESSION['flash_message']) === true){
-                $flash_message = $_SESSION['flash_message'];
-                //$_SESSION['flash_message'] = null;
-                unset($_SESSION["flash_message"]);
-            }
-            //count(follow.followed_user_id)
-            
-            $stmt = $pdo->prepare('SELECT follow.follow_user_id as follow_users,users.nickname as nickname, users.image as image  FROM users join follow on users.id = follow.followed_user_id where follow.followed_user_id=:followed_user_id');
-            $stmt->bindParam('followed_user_id', $user_id, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $following_users = $stmt->fetchAll();
-          
-            
-            $stmt = $pdo->query('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id order by posts.id desc');
-            $posts = $stmt->fetchAll();
-            
-            $stmt = $pdo->prepare('SELECT users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at FROM posts left outer join users on users.id = posts.user_id where posts.user_id=:user_id');
-            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-            $stmt->execute();
-            $my_posts = $stmt->fetchAll();
-            
-            $stmt = $pdo->query('select users.id as post_user_id, posts.id as id, users.nickname as name, users.image as user_image, posts.title as title, posts.body as body, posts.image as image, posts.created_at as created_at from users join follow on users.id=follow.followed_user_id join posts on follow.followed_user_id=posts.user_id where follow.follow_user_id=' . $user_id);
-            //$stmt->bindParam(':login_user_id', 5, PDO::PARAM_INT);
-            $follow_users_posts = $stmt->fetchAll();
-
-            
-            //https://webkaru.net/php/function-array-merge-recursive/
-            $timelines = array_merge_recursive($follow_users_posts,$my_posts);
-            
-            //https://qiita.com/shy_azusa/items/54dadc55e3e71cde1445
-            foreach ((array) $timelines as $key => $value) {
-                $sort[$key] = $value['id'];
-            }
-            
-            array_multisort($sort, SORT_DESC, $timelines);
-
-        } catch (PDOException $e) {
-            echo 'PDO exception: ' . $e->getMessage();
-            exit;
         }
+        
+        // 自分のインスタンスを生成
+        $user_dao = new UserDAO();
+        $user = $user_dao->get_user_by_id($user_id);
+        
+        // 自分のアバターアイコンのファイル名を取得
+        $avatar = $user_dao->get_avatar_by_id($user_id);
+
+        $filePath = USER_IMAGE_DIR . $avatar;
+        
+        // 投稿一覧を取得する
+        $post_dao = new PostDAO();
+        $posts = $post_dao->get_all_posts();
+        
+        // 自分の投稿一覧を取得する
+        $my_posts = $user_dao->get_my_posts($user_id);
+       
+        // 自分がフォローしているユーザ一覧を取得する
+        $follow_dao = new FollowDAO();
+        $my_fallowing_users = $follow_dao->get_my_fallowing_users($user_id);
+        
+        // 自分をフォローしてくれているユーザ一覧を取得する
+        $my_followed_users = $follow_dao->get_my_followed_users($user_id);
+
+        // 自分がフォローしているユーザの投稿一覧を取得する
+        $following_user_posts = $user_dao->get_my_following_user_posts($user_id);
+
+        //https://webkaru.net/php/function-array-merge-recursive/
+        $timelines = array_merge_recursive($following_user_posts, $my_posts);
+        
+        //https://qiita.com/shy_azusa/items/54dadc55e3e71cde1445
+        foreach ((array) $timelines as $key => $value) {
+            $sort[$key] = $value['id'];
+        }
+        
+        // id順に逆順に並び替え
+        array_multisort($sort, SORT_DESC, $timelines);
+
+
     }else{
         $flash_message = "不正アクセスです！ログインしてください";
         $_SESSION['flash_message'] = $flash_message;
@@ -97,30 +80,6 @@
         header('Location: index.php');
         exit;
     }
-    
-    function isLike($post_id){
-        global $user_id;
-        global $pdo;
-        $stmt = $pdo->prepare('SELECT count(*) as liked_count FROM favorites where user_id=:user_id && post_id=:post_id');
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
-            
-        $data = $stmt->fetch();
-        //var_dump($liked_count);
-        return $data['liked_count'];
-    }
-    
-    function likeCount($post_id){
-        global $pdo;
-        $stmt = $pdo->prepare('SELECT count(*) as liked_count FROM favorites where post_id=:post_id');
-        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
-            
-        $data = $stmt->fetch();
-        return $data['liked_count'];
-    }
-    
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -209,11 +168,11 @@
             </div>
             <div class="row mt-5">
                 <div class="col-3 text-center">
-                    <img src="<?php print 'uploads/users/' . $user['image']; ?>" class="profile_image"> 
+                    <img src="<?php print $filePath;?>" class="profile_image"> 
                 </div>
                 <div class="offset-sm-1 col-4 text-left">
-                    <h3><?php print $user['nickname']; ?> </h3>
-                    <p><a href="followd_users.php?user_id=<?php print $user_id; ?>"><?php print count($following_users);?></a>人にフォローされています</p>
+                    <h3><?php print $user->nickname; ?> </h3>
+                    <p><a href="followd_users.php?user_id=<?php print $user_id; ?>"><?php print count($my_followed_users);?></a>人にフォローされています</p>
                 </div>
                  <div class="offset-sm-2 col-2 text-center">
                     <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
@@ -232,31 +191,31 @@
             <div id="item1" class="row mt-2 tab_item is-active-item">
                 <?php foreach($posts as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
-                    <a href="show.php?post_id=<?php print $post['id']; ?>">
-                        <p><?php print $post['id']; ?></p>
+                    <a href="show.php?post_id=<?php print $post->id; ?>">
+                        <p><?php print $post->id; ?></p>
                     </a>
-                    <a href="mypage.php?user_id=<?php print $post['post_user_id']; ?>">
-                        <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                    <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
+                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
                         
                     </a>
-                        <p><?php print $post['title']; ?></p>
-                        <p><?php print $post['body']; ?></p>
-                        <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                        <p><?php print $post->title; ?></p>
+                        <p><?php print $post->body; ?></p>
+                        <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
                     
-                    
-                    <?php if(isLike($post['id']) == 0){ ?>
+                    <!--いいねしていなければ-->
+                    <?php if($post->check_favoriting($user_id) === false){ ?>
                     
                     <form action="top.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
                         <button type="submit" name="likeOrUnlike" value="like">いいね</button>
-                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
                         <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
-                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     <?php } ?>        
                         
@@ -268,30 +227,31 @@
             <div id="item2" class="row mt-2 tab_item">
                 <?php foreach($timelines as $post){ ?>
                 <div class="offset-sm-3 col-sm-6 section">
-                    <a href="show.php?post_id=<?php print $post['id']; ?>">
-                        <p><?php print $post['id']; ?></p>
+                    <a href="show.php?post_id=<?php print $post->id; ?>">
+                        <p><?php print $post->id; ?></p>
                     </a>
-                    <a href="mypage.php?user_id=<?php print $post['post_user_id']; ?>">
-                        <p><img src="<?php print 'uploads/users/' . $post['user_image']; ?>" class="avator_image">　<?php print $post['name']; ?>　<?php print $post['created_at']; ?></p>
+                    <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
+                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
+                        
                     </a>
-                        <p><?php print $post['title']; ?></p>
-                        <p><?php print $post['body']; ?></p>
-                        <p><img src="uploads/posts/<?php print $post['image']; ?>" style="width: 300px"></p>
+                        <p><?php print $post->title; ?></p>
+                        <p><?php print $post->body; ?></p>
+                        <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
                     
-                    
-                    <?php if(isLike($post['id']) == 0){ ?>
+                    <!--いいねしていなければ-->
+                    <?php if($post->check_favoriting($user_id) === false){ ?>
                     
                     <form action="top.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
                         <button type="submit" name="likeOrUnlike" value="like">いいね</button>
-                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php print $post['id']; ?>">
+                        <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
                         <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
-                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post['id']; ?>"><?php print likeCount($post['id']); ?>いいね</a></span>
+                        <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     <?php } ?>        
                         

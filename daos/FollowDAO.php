@@ -1,7 +1,7 @@
 <?php
 // 外部ファイルの読み込み
 require_once 'config/Const.php';
-require_once 'models/Follow.php';
+require_once 'daos/FollowDAO.php';
 
 // データベースとやり取りを行う便利なクラス
 class FollowDAO{

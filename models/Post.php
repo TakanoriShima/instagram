@@ -1,6 +1,7 @@
 <?php
 require_once 'daos/UserDAO.php';
 require_once 'daos/PostDAO.php';
+require_once 'daos/FavoriteDAO.php';
 
 class Post{
     
@@ -28,6 +29,21 @@ class Post{
         $post_dao = new PostDAO();
         $comments = $post_dao->get_comments_by_post_id($this->id);
         return $comments;
+    }
+    
+    // いいね数を求めるメソッド
+    public function favoriting_count($user_id){
+        $post_dao = new PostDAO();
+        $favorited_count = $post_dao->get_favoriting_users($this->id);
+        
+        return count($favorited_count);
+    }
+    
+    public function check_favoriting($user_id){
+        $favorite = new Favorite($user_id, $this->id);
+        $post_dao = new PostDAO();
+        $check_favoriting = $post_dao->check_favoriting($favorite);
+        return $check_favoriting;
     }
 }
 ?>
