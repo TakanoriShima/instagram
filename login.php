@@ -1,48 +1,24 @@
 <?php
-    //var_dump($_SESSION);
-    $dsn = 'mysql:host=localhost;dbname=instagram';
-    $db_username = 'root';
-    $db_password = '';
-    $flash_message = "";
+    require_once 'daos/UserDAO.php';
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         session_start();
         
         $email = $_POST['email'];
         $password = $_POST['password'];
-        //$_SESSION['flash_message'] = null;
         
         try {
     
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
-            
-            $pdo = new PDO($dsn, $db_username, $db_password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-            $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND password = :password');
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->bindParam(':password', $password, PDO::PARAM_STR);
-            $stmt->execute();
-            
-            $user = $stmt->fetch();
-            var_dump($user);
+            $user_dao = new UserDAO();
+            $user = $user_dao->login($email, $password);
             
             if($user !== false){
-                $flash_message = "ログインに成功しました。";
-                $_SESSION['flash_message'] = $flash_message;
+                $_SESSION['flash_message'] = "ログインに成功しました。";
                 $_SESSION['user_id'] = $user['id'];
                 header('Location: top.php');
                 exit;
             }else{
-                $flash_message = "ユーザ情報が間違っています。";
-                $_SESSION['flash_message'] = $flash_message;
-                //print "NG";
-                header('Location: index.php');
-                exit;
+                $flash_message = "ログイン情報が間違っています。";
             }
             
         } catch (PDOException $e) {
@@ -51,8 +27,7 @@
         }
     }else{ //GET通信
         if(isset($_SESSION['user_id']) === null){
-            $flash_message = "不正アクセスです。ログインしてください。";
-            $_SESSION['flash_message'] = $flash_message;
+            $flash_message = $_SESSION['flash_message'];
         }
     }
 

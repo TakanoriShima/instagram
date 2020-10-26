@@ -1,10 +1,5 @@
 <?php
-
-    $dsn = 'mysql:host=localhost;dbname=instagram';
-    $db_username = 'root';
-    $db_password = '';
-    
-    $image_dir = "uploads/users/";
+    require_once 'daos/UserDAO.php';
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         session_start();
@@ -12,44 +7,23 @@
         $nickname = $_POST['nickname'];
         $email = $_POST['email'];
         $password = $_POST['password'];
-        $image = "";
+        $avatar = "";
         
         try {
     
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
-            
-            $pdo = new PDO($dsn, $db_username, $db_password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
-            
             if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
             
-                $image = uniqid(mt_rand(), true); //ファイル名をユニーク化
-                $image .= '.' . substr(strrchr($_FILES['image']['name'], '.'), 1);//アップロードされたファイルの拡張子を取得
-                $file = $image_dir . $image;
-            
-                move_uploaded_file($_FILES['image']['tmp_name'], $file);//uploadディレクトリにファイル保存
+                $user_dao = new UserDAO();
+                $avatar = $user_dao->upload();
                 
-        
-                $stmt = $pdo -> prepare("INSERT INTO users (name, nickname, email, password, image) VALUES (:name, :nickname, :email, :password, :image)");
-                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-                $stmt->bindParam(':nickname', $nickname, PDO::PARAM_STR);
-                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-                $stmt->bindParam(':password', $password, PDO::PARAM_STR);
-                $stmt->bindParam(':image', $image, PDO::PARAM_STR);
+                $user = new User($name, $nickname, $email, $password, $avatar);
+                $user_id = $user_dao->signup($user);
                 
-                $stmt->execute();
-                
-                $user_id = $pdo->lastInsertId();
                 $_SESSION['user_id'] = $user_id;
                 $flash_message = "新規ユーザ登録が成功しました。";
                 $_SESSION['flash_message'] = $flash_message;
                 
-                header('Location: top.php');
+                header('Location: login.php');
                 exit;
             
             }
@@ -123,7 +97,7 @@
                     <div class="form-group row">
                         <label class="col-2 col-form-label">アバター画像</label>
                         <div class="col-2">
-                            <input type="file" name="image" class="" required　>
+                            <input type="file" name="image" class="" required>
                         </div>
                         <canvas id="canvas" class="offset-sm-4 col-4" width="0" height="0"></canvas>
                     </div>
