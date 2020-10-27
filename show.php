@@ -1,75 +1,48 @@
 <?php
+    require_once "daos/PostDAO.php";
+    require_once "daos/CommentDAO.php";
     
     session_start();
     
+    // ログインしていたら
     if(isset($_SESSION['user_id']) === true){
 
-        $dsn = 'mysql:host=localhost;dbname=instagram';
-        $db_username = 'root';
-        $db_password = '';
-        
+        // ログインした人のユーザ番号
         $user_id = $_SESSION['user_id'];
+        // 投稿番号
         $post_id = $_GET['post_id'];
     
         $flash_message = "";
         $commet_flash_message = "";
     
         try {
-        
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
-            
-            $pdo = new PDO($dsn, $db_username, $db_password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
+            // コメント投稿ボタンを押したとき
             if(isset($_POST['body']) === true){
+                
                 $body = $_POST['body'];
-                //print "INSERT COMMENT";
-                $stmt = $pdo -> prepare("INSERT INTO comments (user_id, post_id, body) VALUES (:user_id, :post_id, :body)");
-                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-                $stmt->bindParam(':body', $body, PDO::PARAM_STR);
                 
-                $stmt->execute();
-                
+                $comment_dao = new CommentDAO();
+                $comment = new Comment($user_id, $post_id, $body);
+                $comment_dao->insert($comment);
                 $comment_flash_message = "コメント投稿が成功しました。";
-                //$_SESSION['flash_message'] = $flash_message;
-                $stmt = $pdo->prepare('SELECT users.nickname as nickname, users.image as avotor_image, comments.body as body, comments.created_at as created_at FROM comments join users on comments.user_id = users.id where comments.post_id =:post_id');
-                $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-                $stmt->execute();
-                
-                $comments = $stmt->fetchAll();
-                
             }
             
-            
-            $stmt = $pdo->prepare('SELECT users.nickname as nickname, users.image as user_image, posts.title as title, posts.body as body, posts.image as post_image, posts.created_at FROM posts join users on posts.user_id = users.id where posts.id =:post_id');
-            $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $post = $stmt->fetch();
-            
-            $stmt = $pdo->prepare('SELECT users.nickname as nickname, users.image as avator_image, comments.body as body, comments.created_at as created_at FROM comments join users on comments.user_id = users.id where comments.post_id =:post_id');
-            $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $comments = $stmt->fetchAll();
-            
-            $user_filePath = 'uploads/users/' . $post['user_image'];
-            $post_filePath = 'uploads/posts/' . $post['post_image'];
+            // コメント一覧の取得
+            $post_dao = new PostDAO();
+            $post = $post_dao->get_post_by_id($post_id);
+            var_dump($post->id);
+            $comments = $post->get_comments();
+            //var_dump($comments);
+        
+            $user_filePath = USER_IMAGE_DIR . $post->get_user()->avatar;
+            $post_filePath = POST_IMAGE_DIR . $post->image;
             
             
             if(isset($_SESSION['flash_message']) === true){
                 $flash_message = $_SESSION['flash_message'];
-                //$_SESSION['flash_message'] = null;
                 unset($_SESSION["flash_message"]);
             }
         
-            
-            
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
@@ -152,7 +125,7 @@
                     <img src="<?php print $user_filePath; ?>" class="profile_image"> 
                 </div>
                 <div class="offset-sm-1 col-4 text-left">
-                    <h3><?php print $post['nickname']; ?> </h3>
+                    <h3><?php print $post->nickname; ?> </h3>
                 </div>
                 <div class="offset-sm-2 col-2 text-center">
                     <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
@@ -164,10 +137,10 @@
             </div>
             <div class="row mt-2">
                 <div class="offset-sm-3 col-sm-6 section">
-                    <a href="show.php?post_id=<?php print $post['id']; ?>">
-                        <p><?php print $post['nickname']; ?>　<?php print $post['created_at']; ?></p>
-                        <p><?php print $post['title']; ?></p>
-                        <p><?php print $post['body']; ?></p>
+                    <a href="show.php?post_id=<?php print $post->id; ?>">
+                        <p><?php print $post->get_user()->nickname; ?>　<?php print $post->created_at; ?></p>
+                        <p><?php print $post->title; ?></p>
+                        <p><?php print $post->body; ?></p>
                         <p><img src="<?php print $post_filePath; ?>" style="width: 300px"></p>
                     </a>
                 </div>
@@ -181,8 +154,8 @@
                 <div class="offset-sm-3 col-sm-6 comments mt-2">
                 <?php foreach($comments as $comment){ ?>
                     <div class="comment">
-                        <p><img src="<?php print 'uploads/users/' . $comment['avator_image']; ?>" class="avator_image">　<?php print $comment['nickname']; ?>　<?php print $comment['created_at']; ?></p>
-                        <p><?php print $comment['body']; ?></p>
+                        <p><img src="<?php print USER_IMAGE_DIR . $comment->get_user()->avatar; ?>" class="avator_image">　<?php print $comment->get_user()->nickname; ?>　<?php print $comment->created_at; ?></p>
+                        <p><?php print $comment->body; ?></p>
                     </div>
                 <?php } ?>
                 </div>

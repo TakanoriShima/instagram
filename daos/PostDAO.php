@@ -113,6 +113,7 @@ class PostDAO{
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $posting_user = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
@@ -122,10 +123,12 @@ class PostDAO{
     // コメント一覧を取得するメソッド
     public function get_comments_by_post_id($post_id){
         $pdo = $this->get_connection();
-        $stmt = $pdo->prepare('SELECT comments.id AS id, comments.user_id AS user_id, comments.post_id AS post_id, comments.body AS body, comments.created_at AS created_at FROM comments JOIN posts ON comments.post_id = posts.id WHERE comments.post_id = :post_id');
+        $stmt = $pdo->prepare('SELECT * FROM comments WHERE post_id = :post_id');
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Comment');
+        $stmt->execute();
+        
         $post_comments = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Commentクラスのインスタンスの配列を返す
@@ -139,6 +142,7 @@ class PostDAO{
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
         // フェッチの結果を、Userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $post_comments = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
@@ -199,5 +203,14 @@ class PostDAO{
         }else{
             return null;
         }
+    }
+    
+    // id順に逆順に並び替え
+    public function order_desc_by_id($posts){
+  
+        $posts = array_reverse($posts, true);
+        return $posts;
+    
+      
     }
 }

@@ -21,11 +21,12 @@ class CommentDAO{
     }
     
     // 全コメント情報を取得するメソッド
-    public function get_all_posts(){
+    public function get_all_comments(){
         $pdo = $this->get_connection();
         $stmt = $pdo->query('SELECT * FROM comments ORDER BY id DESC');
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Comment');
+        $stmt->execute();
         $comments = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
@@ -37,8 +38,8 @@ class CommentDAO{
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM comments WHERE id = :id');
         $stmt->bindParam(':id', $comment_id, PDO::PARAM_INT);
-        $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Comment');
+        $stmt->execute();
         $comment = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスを返す
@@ -60,13 +61,14 @@ class CommentDAO{
     // コメントしたユーザ情報を取得するメソッド
     public function get_user_by_comment_id($comment_id){
         $pdo = $this->get_connection();
-        $stmt = $pdo->prepare('SELECT users.id AS id, users.name AS name, users.nickname AS nickname, users.email AS email, users.password AS password, users.avatar AS avatar, users.profile AS profile, users.created_at AS created_at, users.updated_at AS updated_at, users.last_logined_at AS last_logined_at FROM users JOIN comments ON users.id = comments.user_id WHERE comments.id = :comment_id');
+        $stmt = $pdo->prepare('SELECT * FROM users JOIN comments ON users.id = comments.user_id WHERE comments.id = :comment_id');
         $stmt->bindParam(':comment_id', $comment_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $commenting_user = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
-        // Userクラスのインスタンスの配列を返す
+        // Userクラスのインスタンスを返す
         return $commenting_user;
     }
     
@@ -77,6 +79,7 @@ class CommentDAO{
         $stmt->bindParam(':comment_id', $comment_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $commenting_post = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Commentクラスのインスタンスの配列を返す

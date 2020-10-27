@@ -67,15 +67,9 @@
         //https://webkaru.net/php/function-array-merge-recursive/
         $timelines = array_merge_recursive($following_user_posts, $my_posts);
         
-        //https://qiita.com/shy_azusa/items/54dadc55e3e71cde1445
-        foreach ((array) $timelines as $key => $value) {
-            $sort[$key] = $value['id'];
-        }
+        // 投稿idの逆順に並べ替え
+        $timelines = array_reverse($timelines, true);
         
-        // id順に逆順に並び替え
-        array_multisort($sort, SORT_DESC, $timelines);
-
-
     }else{
         $flash_message = "不正アクセスです！ログインしてください";
         $_SESSION['flash_message'] = $flash_message;
@@ -190,6 +184,7 @@
                     <h1 class="text-center"><a class="tab_btn text-center" href="#item2">タイムライン</a></h1>
                 </div>
             </div>
+            
             <!-- 投稿一覧　-->
             <div id="item1" class="row mt-2 tab_item is-active-item">
                 <?php foreach($posts as $post){ ?>
@@ -234,7 +229,7 @@
                         <p><?php print $post->id; ?></p>
                     </a>
                     <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
-                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
+                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
                         
                     </a>
                         <p><?php print $post->title; ?></p>
@@ -260,11 +255,12 @@
                         
                 </div>
                 <?php } ?>
-                </div>
-                <div class="row mt-3 mb-3">
-                    <div class="offset-sm-4 col-sm-4">
-                        <a href="post.php" class="btn btn-primary">新規投稿</a>
-                    </div>
+            </div>
+            
+            
+            <div class="row mt-3 mb-3">
+                <div class="offset-sm-4 col-sm-4">
+                    <a href="post.php" class="btn btn-primary">新規投稿</a>
                 </div>
             </div>
         </div>

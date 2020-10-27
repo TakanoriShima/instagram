@@ -25,9 +25,11 @@ class FavoriteDAO{
         $stmt = $pdo->prepare("SELECT * FROM favorites WHERE user_id=:user_id");
 
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->execute();
         // フェッチの結果を、Favoriteクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Favorite');
+        
+        $stmt->execute();
+        
         $my_favoriting_posts = $stmt->fetchAll();
         
         $this->close_connection($pdo, $stmp);
@@ -42,8 +44,10 @@ class FavoriteDAO{
         $stmt = $pdo->prepare('SELECT * FROM favorites WHERE user_id = :user_id AND post_id = :post_id');
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
+        
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Favorite');
+        $stmt->execute();
+        
         $favorite = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Favoriteクラスのインスタンスを返す

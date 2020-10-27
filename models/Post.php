@@ -28,6 +28,8 @@ class Post{
     public function get_comments(){
         $post_dao = new PostDAO();
         $comments = $post_dao->get_comments_by_post_id($this->id);
+        // $comment_dao = new CommentDAO();
+        // $comments = $comment_dao->get_all_comments();
         return $comments;
     }
     

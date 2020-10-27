@@ -63,5 +63,15 @@ class User{
         $my_followed_users = $user_dao->get_my_followed_users($this->id);
         return $my_followed_users;
     }
+    
+    // ターゲットユーザをフォローしているか判定するメソッド
+    public function check_follow($target_use_id){
+        $user_dao = new UserDAO();
+        if($user_dao->check_follow($this->id, $target_use_id)){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
 ?>

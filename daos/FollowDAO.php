@@ -25,9 +25,10 @@ class FollowDAO{
         $stmt = $pdo->prepare("SELECT users.id AS id, users.name AS name, users.nickname AS nickname, users.email AS email, users.password AS password, users.avatar AS avatar, users.profile AS profile, users.created_at AS created_at, users.updated_at AS updated_at, users.last_logined_at AS last_logined_at FROM users JOIN follows ON users.id = follows.follow_user_id WHERE follows.follow_user_id=:follow_user_id");
 
         $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
-        $stmt->execute();
         // フェッチの結果を、Userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
+        
         $my_following_users = $stmt->fetchAll();
         
         $this->close_connection($pdo, $stmp);
@@ -42,9 +43,11 @@ class FollowDAO{
         $stmt = $pdo->prepare("SELECT users.id AS id, users.name AS name, users.nickname AS nickname, users.email AS email, users.password AS password, users.avatar AS avatar, users.profile AS profile, users.created_at AS created_at, users.updated_at AS updated_at, users.last_logined_at AS last_logined_at FROM users JOIN follows ON users.id = follows.followed_user_id WHERE follows.followed_user_id=:followed_user_id");
 
         $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
-        $stmt->execute();
+        
         // フェッチの結果を、Userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
+        
         $my_followed_users = $stmt->fetchAll();
         
         $this->close_connection($pdo, $stmp);
@@ -58,8 +61,10 @@ class FollowDAO{
         $stmt = $pdo->prepare('SELECT * FROM follows WHERE follow_user_id = :follow_user_id AND followed_user_id = :followed_user_id');
         $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
         $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
-        $stmt->execute();
+        
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Favorite');
+        $stmt->execute();
+        
         $follow = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Favoriteクラスのインスタンスを返す
@@ -91,7 +96,7 @@ class FollowDAO{
             // バインド処理
             $stmt->bindParam(':follow_user_id', $follow->follow_user_id, PDO::PARAM_INT);
             $stmt->bindParam(':followed_user_id', $follow->followed_user_id, PDO::PARAM_INT);
-        
+            
             $stmt->execute();
             
             $this->close_connection($pdo, $stmp);
@@ -105,7 +110,7 @@ class FollowDAO{
         // バインド処理
         $stmt->bindParam(':follow_user_id', $follow->follow_user_id, PDO::PARAM_INT);
         $stmt->bindParam(':followed_user_id', $follow->followed_user_id, PDO::PARAM_INT);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Follow');
         $stmt->execute();
         
         $following_count = count($stmt->fetchAll());

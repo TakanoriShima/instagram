@@ -3,6 +3,7 @@
 require_once 'config/Const.php';
 require_once 'models/User.php';
 require_once 'models/Post.php';
+require_once 'models/Follow.php';
 
 // usersテーブルとやり取りを行う便利なクラス
 class UserDAO{
@@ -25,6 +26,7 @@ class UserDAO{
         $stmt = $pdo->query('SELECT * FROM users');
         // フェッチの結果を、userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $users = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
@@ -50,9 +52,9 @@ class UserDAO{
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM users WHERE id=:id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
         // フェッチの結果を、userクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $user = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // avatar画像ファイル名を返す
@@ -83,8 +85,8 @@ class UserDAO{
         $stmt = $pdo->prepare('SELECT * FROM users WHERE email=:email AND password=:password');
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->bindParam(':password', $password, PDO::PARAM_STR);
-        $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $user = $stmt->fetch();
         //$this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスを返す
@@ -116,6 +118,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $my_posts = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
@@ -129,6 +132,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $my_commenting_posts = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
@@ -142,6 +146,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Comment');
+        $stmt->execute();
         $my_comments = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
@@ -155,6 +160,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $my_favoriting_posts = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
@@ -168,13 +174,32 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $my_following_users = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
         return $my_following_users;
     }
     
-   
+    // フォローしているか判定するメソッド
+    public function check_follow($user_id, $target_user_id){
+        $pdo = $this->get_connection();
+        $stmt = $pdo->prepare('SELECT * FROM follows WHERE follow_user_id = :follow_user_id AND followed_user_id = :followed_user_id');
+        $stmt->bindParam(':follow_user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':followed_user_id', $target_user_id, PDO::PARAM_INT);
+        // フェッチの結果を、Postクラスのインスタンスにマッピングする
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Follow');
+        $stmt->execute();
+        $follows = $stmt->fetchAll();
+        $this->close_connection($pdo, $stmp);
+        
+        if(count($follows) === 1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     // 自分をフォローしてくれているユーザリストを取得するメソッド
     public function get_my_followed_users($user_id){
         $pdo = $this->get_connection();
@@ -182,6 +207,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
         $my_followed_users = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Userクラスのインスタンスの配列を返す
@@ -195,6 +221,7 @@ class UserDAO{
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $my_following_user_posts = $stmt->fetchAll();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す

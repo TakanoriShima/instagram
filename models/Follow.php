@@ -1,5 +1,5 @@
 <?php
-class Favorite{
+class Fallow{
     
     public $id;
     public $follow_user_id;
