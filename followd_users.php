@@ -1,36 +1,21 @@
 <?php
-
-    $user_id = $_GET['user_id'];
-    session_start();
     
-    $dsn = 'mysql:host=localhost;dbname=instagram';
-    $username = 'root';
-    $password = '';
-    $messages = array();
+    require_once "daos/UserDAO.php";
+    require_once "daos/FollowDAO.php";
+    
+    // 注目している人のユーザ番号
+    $user_id = $_GET['user_id'];
+    
+    session_start();
 
     $flash_message = "";
 
     try {
-    
-        $options = array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-        ); 
-        
-        $pdo = new PDO($dsn, $username, $password, $options);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
-        $stmt = $pdo->prepare('SELECT follow.follow_user_id as user_id, users.nickname as nickname, users.image as image from follow join users on users.id = follow.follow_user_id where follow.followed_user_id=:followed_user_id order by users.id');
-        $stmt->bindParam('followed_user_id', $user_id, PDO::PARAM_INT);
-        $stmt->execute();
-            
-        $following_users = $stmt->fetchAll();
-        
-        
-    
-        
-        
+        $user_dao = new UserDAO();
+        $user = $user_dao->get_user_by_id($user_id);
+        $follow_dao = new FollowDAO();
+        $my_followed_users = $follow_dao->get_my_followed_users($user_id);
+
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
         exit;
@@ -64,13 +49,13 @@
     <body>
         <div class="container">
             <div class="row mt-2">
-                <h1 class=" col-sm-12 text-center">いいねをしてくれた皆さま</h1>
+                <h1 class=" col-sm-12 text-center">フォローをしてくれた皆さま</h1>
             </div>
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
-            <?php if(count($following_users) !== 0){ ?> 
+            <?php if(count($my_followed_users) !== 0){ ?> 
                 <table class="col-sm-12 table table-bordered table-striped">
                     <tr>
                         <th>ユーザID</th>
@@ -78,11 +63,11 @@
                         <th>ユーザ名</th>
                     </tr>
                     </tr>
-                <?php foreach($following_users as $user){ ?>
+                <?php foreach($my_followed_users as $user){ ?>
                     <tr>
-                        <td><a href="mypage.php?user_id=<?php print $user['user_id']; ?>"><?php print $user['user_id']; ?></a></td>
-                        <td><img src="uploads/users/<?php print $user['image']; ?>" class="avator_image"></td>
-                        <td><?php print $user['nickname']; ?></td>
+                        <td><a href="mypage.php?user_id=<?php print $user->id; ?>"><?php print $user->id; ?></a></td>
+                        <td><img src="<?php print USER_IMAGE_DIR . $user->avatar; ?>" class="avator_image"></td>
+                        <td><?php print $user->nickname; ?></td>
                     </tr>
                 <?php } ?>
                 </table>

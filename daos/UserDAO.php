@@ -217,7 +217,7 @@ class UserDAO{
     // 自分がフォローしたユーザの投稿リストを取得するメソッド
     public function get_my_following_user_posts($user_id){
         $pdo = $this->get_connection();
-        $stmt = $pdo->prepare('SELECT FROM posts JOIN users ON posts.user_id = users.id JOIN follows ON follows.follow_user_id = users.id WHERE follows.follow_user_id = :user_id');
+        $stmt = $pdo->prepare('SELECT * FROM posts JOIN users ON posts.user_id = users.id JOIN follows ON follows.follow_user_id = users.id WHERE follows.follow_user_id = :user_id');
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         // フェッチの結果を、Postクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
@@ -226,6 +226,20 @@ class UserDAO{
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスの配列を返す
         return $my_following_user_posts;
+    }
+    
+    // ユーザを指定して、自分自身の投稿一覧と併せてと、自分がフォローした人の投稿一覧を取得する
+    public function get_timelines($user_id){
+        $pdo = $this->get_connection();
+        $stmt = $pdo->prepare('SELECT posts.id, posts.user_id, posts.title, posts.body, posts.image, posts.created_at FROM posts JOIN users ON posts.user_id = users.id WHERE users.id = any(SELECT follows.followed_user_id FROM follows WHERE follows.follow_user_id = :user_id) OR user_id = :user_id ORDER BY posts.id DESC');
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        // フェッチの結果を、Postクラスのインスタンスにマッピングする
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
+        $timelines = $stmt->fetchAll();
+        $this->close_connection($pdo, $stmp);
+        // Postクラスのインスタンスの配列を返す
+        return $timelines;
     }
     
     // ファイルをアップロードするメソッド

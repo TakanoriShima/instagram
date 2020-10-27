@@ -30,9 +30,8 @@
             // コメント一覧の取得
             $post_dao = new PostDAO();
             $post = $post_dao->get_post_by_id($post_id);
-            var_dump($post->id);
+            
             $comments = $post->get_comments();
-            //var_dump($comments);
         
             $user_filePath = USER_IMAGE_DIR . $post->get_user()->avatar;
             $post_filePath = POST_IMAGE_DIR . $post->image;

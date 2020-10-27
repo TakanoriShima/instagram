@@ -61,14 +61,9 @@
         // 自分をフォローしてくれているユーザ一覧を取得する
         $my_followed_users = $follow_dao->get_my_followed_users($user_id);
 
-        // 自分がフォローしているユーザの投稿一覧を取得する
-        $following_user_posts = $user_dao->get_my_following_user_posts($user_id);
+        // タイムライン作成
+        $timelines = $user_dao->get_timelines($user_id);
 
-        //https://webkaru.net/php/function-array-merge-recursive/
-        $timelines = array_merge_recursive($following_user_posts, $my_posts);
-        
-        // 投稿idの逆順に並べ替え
-        $timelines = array_reverse($timelines, true);
         
     }else{
         $flash_message = "不正アクセスです！ログインしてください";

@@ -39,8 +39,8 @@ class FollowDAO{
     // followed_user_idを指定して、フォローしてくれているユーザ一覧情報を取得するメソッド
     public function get_my_followed_users($followed_user_id){
         $pdo = $this->get_connection();
-        
-        $stmt = $pdo->prepare("SELECT users.id AS id, users.name AS name, users.nickname AS nickname, users.email AS email, users.password AS password, users.avatar AS avatar, users.profile AS profile, users.created_at AS created_at, users.updated_at AS updated_at, users.last_logined_at AS last_logined_at FROM users JOIN follows ON users.id = follows.followed_user_id WHERE follows.followed_user_id=:followed_user_id");
+        // https://www.dbonline.jp/mysql/select/index20.html#section2
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE users.id = any (SELECT follows.follow_user_id FROM follows where follows.followed_user_id = :followed_user_id)");
 
         $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
         
@@ -55,7 +55,7 @@ class FollowDAO{
         return $my_followed_users;
     }
 
-    // follow_user_idと、followed_user_id からいいね情報を抜き出すメソッド
+    // follow_user_idと、followed_user_id からフォロー情報を抜き出すメソッド
     public function get_follow($follow_user_id, $followed_user_id){
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM follows WHERE follow_user_id = :follow_user_id AND followed_user_id = :followed_user_id');
