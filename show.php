@@ -25,6 +25,8 @@
                 $comment = new Comment($user_id, $post_id, $body);
                 $comment_dao->insert($comment);
                 $comment_flash_message = "コメント投稿が成功しました。";
+                header('Location: show.php?post_id=' . $post_id); 
+                exit;
             }
             
             // コメント一覧の取得

@@ -106,15 +106,17 @@
                 margin-bottom: 20px;
                 padding: 15px;
             }
-            a{
+            h1 a{
                 display: block;
                 width: 100%;
                 text-decoration: none;
                 color: black;
             }
-            a p{
+            a{
                 text-decoration: none;
+                color: black;
             }
+
             .tab_item {
               display: none;
             }
@@ -124,11 +126,12 @@
             }
             
             /* aタグをブロック要素にする。文字色は親クラスと同様に、下線は消す */
-            a {
-              display: block;
-              color: inherit;
-              text-decoration: none;
-            }
+            /*a {*/
+            /*  display: block;*/
+            /*  color: inherit;*/
+            /*  text-decoration: none;*/
+            /*  font-weight: bold;*/
+            /*}*/
             
             .tab_btn {
               font-size: 24px;
@@ -187,13 +190,14 @@
                     <a href="show.php?post_id=<?php print $post->id; ?>">
                         <p><?php print $post->id; ?></p>
                     </a>
-                    <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
-                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
-                        
-                    </a>
-                        <p><?php print $post->title; ?></p>
-                        <p><?php print $post->body; ?></p>
-                        <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
+                    <p>
+                        <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
+                            <img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">&nbsp;&nbsp;<?php print $post->get_user()->nickname; ?>
+                        </a><?php print $post->created_at; ?>
+                    </p>
+                    <p><?php print $post->title; ?></p>
+                    <p><?php print $post->body; ?></p>
+                    <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
                     
                     <!--いいねしていなければ-->
                     <?php if($post->check_favoriting($user_id) === false){ ?>
@@ -223,13 +227,14 @@
                     <a href="show.php?post_id=<?php print $post->id; ?>">
                         <p><?php print $post->id; ?></p>
                     </a>
-                    <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
-                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
-                        
-                    </a>
-                        <p><?php print $post->title; ?></p>
-                        <p><?php print $post->body; ?></p>
-                        <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
+                    <p>
+                        <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
+                            <img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">&nbsp;&nbsp;<?php print $post->get_user()->nickname; ?>
+                        </a><?php print $post->created_at; ?>
+                    </p>
+                    <p><?php print $post->title; ?></p>
+                    <p><?php print $post->body; ?></p>
+                    <p><img src="<?php print POST_IMAGE_DIR . $post->image; ?>" style="width: 300px"></p>
                     
                     <!--いいねしていなければ-->
                     <?php if($post->check_favoriting($user_id) === false){ ?>
@@ -246,8 +251,7 @@
                         <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
-                    <?php } ?>        
-                        
+                    <?php } ?>
                 </div>
                 <?php } ?>
             </div>
