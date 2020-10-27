@@ -73,7 +73,9 @@ class FollowDAO{
     
     // フォローデータを1件登録するメソッド
     public function insert($follow){
-        if($this->check_following($follow) === false){
+    
+        if($this->check_following($follow) == 0){
+
             $pdo = $this->get_connection();
             $stmt = $pdo -> prepare("INSERT INTO follows (follow_user_id, followed_user_id) VALUES (:follow_user_id, :followed_user_id)");
     
@@ -89,7 +91,7 @@ class FollowDAO{
     
     // フォローデータを削除するメソッド
     public function delete($follow){
-        if($this->check_following($favorite) === true){
+        if($this->check_following($favorite) == 0){
             $pdo = $this->get_connection();
             $stmt = $pdo -> prepare("DELETE FROM follows WHERE follow_user_id=:follow_user_id AND followed_user_id=:followed_user_id");
     
@@ -105,18 +107,19 @@ class FollowDAO{
     
     public function check_following($follow){
         $pdo = $this->get_connection();
-        $stmt = $pdo -> prepare("SELECT * FROM follows WHERE follow_user_id = :follow_user_id AND followed_user_id = :followed_user_id");
+        $stmt = $pdo -> prepare("SELECT COUNT(*) AS count FROM follows WHERE follow_user_id = :follow_user_id AND followed_user_id = :followed_user_id");
 
         // バインド処理
         $stmt->bindParam(':follow_user_id', $follow->follow_user_id, PDO::PARAM_INT);
         $stmt->bindParam(':followed_user_id', $follow->followed_user_id, PDO::PARAM_INT);
-        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Follow');
+        // $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Follow');
         $stmt->execute();
         
-        $following_count = count($stmt->fetchAll());
-        $this->close_connection($pdo, $stmp);
+        $count = $stmt->fetch()['count'];
         
-        if($following_count == 1){
+        $this->close_connection($pdo, $stmp);
+
+        if($count == 1){
             return true;
         }else{
             return false;

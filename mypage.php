@@ -1,6 +1,8 @@
 <?php
     
+    require_once "models/Follow.php";
     require_once "daos/UserDAO.php";
+    require_once "daos/FollowDAO.php";
     
     session_start();
     
@@ -14,37 +16,31 @@
         $target_user_id = $_GET['user_id'];
         
         try{
-            // if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            // フォローボタン、もしくはフォロー解除ボタンが押された時、
+            if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 
-                // フォローボタンが押されたならば
-            //     if($_POST['followOrUnFollow'] === 'follow'){
-                    
-            //         //$followed_user_id = $_POST['followed_user_id'];
-                    
-                    
-                    
-                    
-            //         $stmt = $pdo -> prepare("INSERT INTO follow (follow_user_id, followed_user_id) VALUES (:follow_user_id, :followed_user_id)");
-            //         $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
-            //         $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
-                    
-            //         $stmt->execute();
-            //         $flash_message = "フォローしました。";
-            //         $_SESSION['flash_message'] = $flash_message;
-                    
-            //     }else{
-            //         $followed_user_id = (int)$_POST['followed_user_id'];
-            //         // print $followed_user_id;
-            //         $stmt = $pdo -> prepare("Delete From follow where follow_user_id=:follow_user_id AND followed_user_id=:followed_user_id");
-            //         $stmt->bindParam(':follow_user_id', $follow_user_id, PDO::PARAM_INT);
-            //         $stmt->bindParam(':followed_user_id', $followed_user_id, PDO::PARAM_INT);
-                    
-            //         $stmt->execute();
-            //         $flash_message = "フォローを解除しました。";
-            //         $_SESSION['flash_message'] = $flash_message;
-            //     }
+                $followed_user_id = $_POST['followed_user_id'];
                 
-            // }
+                $follow = new Follow($user_id, $followed_user_id);
+                $follow_dao = new FollowDAO();
+                
+                //フォローボタンが押されたならば
+                if($_POST['followOrUnFollow'] === 'follow'){
+                    
+                    $follow_dao->insert($follow);
+                    
+                    $flash_message = "フォローしました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                    
+                }else{
+                 
+                    $follow_dao->delete($follow);
+                    
+                    $flash_message = "フォローを解除しました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                }
+                
+            }
 
             $user_dao = new UserDAO();
             $user = $user_dao->get_user_by_id($user_id);
@@ -139,7 +135,7 @@
                     <h3><?php print $target_user->nickname; ?> </h3>
                     
                     <?php if($target_user_id != $user_id){ ?>
-                        <?php if($user->check_follow($target_user_id) === false){ ?>
+                        <?php if($user->check_follow($target_user_id) == 0){ ?>
                             <form action="" method="POST">
                                 <input type="hidden" name="followed_user_id" value="<?php print $target_user_id; ?>">
                                 <input type="hidden" name="followOrUnFollow" value="follow">
