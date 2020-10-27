@@ -16,13 +16,16 @@
     if(isset($_SESSION['user_id']) === true){
         
         $user_id = $_SESSION['user_id'];
-        
+
         // いいねする、いいね解除するのボタンを押したとき
-        if($SERVER['REQUEST_METHOD'] === 'POST'){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            
             if(isset($_POST['post_id']) === true){
                 $post_id = $_POST['post_id'];
-                $favorite_dao = new FavoriteDAO();
+                
                 $favorite = new Favorite($user_id, $post_id);
+                
+                $favorite_dao = new FavoriteDAO();
                 
                 // いいねボタンを押したとき
                 if($_POST['likeOrUnlike'] === 'like'){

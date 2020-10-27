@@ -89,7 +89,7 @@ class FavoriteDAO{
         // バインド処理
         $stmt->bindParam(':user_id', $favorite->user_id, PDO::PARAM_INT);
         $stmt->bindParam(':post_id', $favorite->post_id, PDO::PARAM_INT);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Favorite');
         $stmt->execute();
         
         $favoriting_count = count($stmt->fetchAll());
