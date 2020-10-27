@@ -1,72 +1,49 @@
 <?php
-    // テストプログラム
-    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    // $username = 'be98aadb1041f4';
-    // $password = 'dd672692';
-
-    $dsn = 'mysql:host=localhost;dbname=instagram';
-    $username = 'root';
-    $password = '';
-    // $dsn = 'mysql:host=mysql1.php.xdomain.ne.jp;dbname=quark2galaxy_bbs';
-    // $username = 'quark2galaxy_bbs';
-    // $password = 'mmEL78rT';
+    require_once 'daos/PostDAO.php';
+    session_start();
     
-    $image_dir = "uploads/posts/";
-    // $messages = array();
-    // $flash_message = "";
-    
-    
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        session_start();
-        $user_id = $_SESSION['user_id']; 
-        $title = $_POST['title'];
-        $body = $_POST['body'];
+    // ログインしていれば
+    if(isset($_SESSION['user_id']) === true){
+        // 新規投稿ボタンを押したら
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
         
-        try {
+            $user_id = $_SESSION['user_id']; 
+            $title = $_POST['title'];
+            $body = $_POST['body'];
+            
+            try {
     
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
-            
-            $pdo = new PDO($dsn, $username, $password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
-            
-            if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
-            
-                $image = uniqid(mt_rand(), true); //ファイル名をユニーク化
-                $image .= '.' . substr(strrchr($_FILES['image']['name'], '.'), 1);//アップロードされたファイルの拡張子を取得
-                $file = $image_dir . $image;
-            
-                move_uploaded_file($_FILES['image']['tmp_name'], $file);//uploadディレクトリにファイル保存
+                if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
                 
-        
-                $stmt = $pdo -> prepare("INSERT INTO posts (user_id, title, body, image) VALUES (:user_id, :title, :body, :image)");
-                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-                $stmt->bindParam(':body', $body, PDO::PARAM_STR);
-                $stmt->bindValue(':image', $image, PDO::PARAM_STR);
+                    $post_dao = new PostDAO();
+                    $image = $post_dao->upload();
+                    
+                    $post = new Post($user_id, $title, $body, $image);
+                    $post_dao->insert($post);
+                    
+                    $flash_message = "投稿が成功しました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                    
+                    header('Location: top.php');
                 
-                $stmt->execute();
+                }
                 
-                $flash_message = "投稿が成功しました。";
+            } catch (PDOException $e) {
+                $flash_message = "失敗";
                 $_SESSION['flash_message'] = $flash_message;
-                
-                header('Location: top.php');
-            
+                echo 'PDO exception: ' . $e->getMessage();
+                header('Location: index.php');
+                exit;
             }
-            
-        } catch (PDOException $e) {
-            $flash_message = "失敗";
-            $_SESSION['flash_message'] = $flash_message;
-            echo 'PDO exception: ' . $e->getMessage();
-            header('Location: index.php');
-            exit;
         }
+    }else{
+        $flash_message = "不正アクセスです！ログインしてください";
+        $_SESSION['flash_message'] = $flash_message;
+        
+        header('Location: index.php');
+        exit;
     }
-
+    
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -134,7 +111,7 @@
                 </form>
             </div>
              <div class="row mt-5">
-                <a href="index.php" class="btn btn-primary">投稿一覧</a>
+                <a href="top.php" class="btn btn-primary">投稿一覧</a>
             </div>
         </div>
         

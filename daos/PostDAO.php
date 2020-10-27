@@ -39,8 +39,8 @@ class PostDAO{
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM posts WHERE id = :id');
         $stmt->bindParam(':id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'Post');
+        $stmt->execute();
         $post = $stmt->fetch();
         $this->close_connection($pdo, $stmp);
         // Postクラスのインスタンスを返す
@@ -62,10 +62,10 @@ class PostDAO{
         $pdo = $this->get_connection();
         $stmt = $pdo -> prepare("INSERT INTO posts (user_id, title, body, image) VALUES (:user_id, :title, :body, :image)");
         // バインド処理
-        $stmt->bindParam(':user_id', $message->user_id, PDO::PARAM_INT);
-        $stmt->bindParam(':title', $message->title, PDO::PARAM_STR);
-        $stmt->bindParam(':body', $message->body, PDO::PARAM_STR);
-        $stmt->bindParam(':image', $message->image, PDO::PARAM_STR);
+        $stmt->bindParam(':user_id', $post->user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':title', $post->title, PDO::PARAM_STR);
+        $stmt->bindParam(':body', $post->body, PDO::PARAM_STR);
+        $stmt->bindParam(':image', $post->image, PDO::PARAM_STR);
         $stmt->execute();
         $this->close_connection($pdo, $stmp);
     }

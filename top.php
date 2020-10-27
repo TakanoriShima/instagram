@@ -195,7 +195,7 @@
                         <p><?php print $post->id; ?></p>
                     </a>
                     <a href="mypage.php?user_id=<?php print $post->user_id; ?>">
-                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
+                        <p><img src="<?php print USER_IMAGE_DIR . $post->get_user()->avatar; ?>" class="avator_image">　<?php print $post->get_user->nickname; ?>　<?php print $post->created_at; ?></p>
                         
                     </a>
                         <p><?php print $post->title; ?></p>
