@@ -1,33 +1,21 @@
 <?php
 
+    require_once 'daos/FavoriteDAO.php';
+
     $post_id = $_GET['post_id'];
     session_start();
     
-    $dsn = 'mysql:host=localhost;dbname=instagram';
-    $username = 'root';
-    $password = '';
+
     $messages = array();
 
     $flash_message = "";
 
     try {
     
-        $options = array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-        ); 
+        $favorite_dao = new FavoriteDAO();
         
-        $pdo = new PDO($dsn, $username, $password, $options);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
-        $stmt = $pdo->prepare('SELECT users.id as user_id, users.nickname as nickname, users.image as image FROM users join favorites on users.id=favorites.user_id where favorites.post_id=:post_id');
-        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
-            
-        $favoriting_users = $stmt->fetchALL();
+        $favoriting_users = $favorite_dao->get_favoriting_users($post_id);
     
-        
         
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
@@ -78,9 +66,9 @@
                     </tr>
                 <?php foreach($favoriting_users as $user){ ?>
                     <tr>
-                        <td><a href="mypage.php?user_id=<?php print $user['user_id']; ?>"><?php print $user['user_id']; ?></a></td>
-                        <td><img src="uploads/users/<?php print $user['image']; ?>" class="avator_image"></td>
-                        <td><?php print $user['nickname']; ?></td>
+                        <td><a href="mypage.php?user_id=<?php print $user->user_id; ?>"><?php print $user->user_id; ?></a></td>
+                        <td><img src="upload/users/<?php print $user->avatar; ?>" class="avator_image"></td>
+                        <td><?php print $user->nickname; ?></td>
                     </tr>
                 <?php } ?>
                 </table>

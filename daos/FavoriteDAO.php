@@ -2,6 +2,7 @@
 // 外部ファイルの読み込み
 require_once 'config/Const.php';
 require_once 'models/Favorite.php';
+require_once 'models/User.php';
 
 // データベースとやり取りを行う便利なクラス
 class FavoriteDAO{
@@ -52,6 +53,21 @@ class FavoriteDAO{
         $this->close_connection($pdo, $stmp);
         // Favoriteクラスのインスタンスを返す
         return $favorite;
+    }
+    
+    // いいねされる投稿のpost_idを指定して、いいねしてくれた人の一覧を取得するメソッド
+    public function get_favoriting_users($post_id){
+        $pdo = $this->get_connection();
+        $stmt = $pdo->prepare('SELECT * FROM users JOIN favorites ON favorites.user_id = users.id WHERE favorites.post_id=:post_id');
+        $stmt->bindParam(':post_id', $post_id, PDO::PARAM_INT);
+        
+        $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'User');
+        $stmt->execute();
+        
+        $favoring_users= $stmt->fetchAll();
+        $this->close_connection($pdo, $stmp);
+        // Favoriteクラスのインスタンスを返す
+        return $favoring_users;
     }
     
     // いいねデータを1件登録するメソッド
