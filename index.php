@@ -42,6 +42,9 @@
             <div class="row mt-4 mr-1 ml-1">
                 <h1 class=" col-sm-12 text-center">写真投稿サイト</h1>
             </div>
+            <div class="row mt-3">
+                <h3 class="col-sm-12 text-center">会員登録して写真を共有しよう</h3>
+            </div>
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h2>
             </div>
