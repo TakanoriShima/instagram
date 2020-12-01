@@ -4,6 +4,8 @@
     require_once 'daos/FavoriteDAO.php';
     require_once 'daos/FollowDAO.php';
     
+    print $_POST['name'];
+    
     session_start();
     $flash_message = "";
     
@@ -85,6 +87,7 @@
         <link rel="shortcut icon" href="favicon.ico">
         <title>ユーザトップ</title>
         <style>
+       
             h2{
                 color: red;
                 background-color: pink;
@@ -154,10 +157,27 @@
               /*color: #00BFFF;*/
               /*background-color: #E0F2F7;*/
             }
+            
+            /* いいねボタン */
+            .active{
+                font-size: 20px;
+                color: red;
+            }
+            .inactive{
+                font-size: 20px;
+            }
+            .clear-decoration {
+                border: none;  /* 枠線を消す */
+                outline: none; /* クリックしたときに表示される枠線を消す */
+                background: transparent; /* 背景の灰色を消す */
+            }
+            
+            
         </style>
     </head>
     <body>
         <div class="container">
+    
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h2>
             </div>
@@ -172,6 +192,13 @@
                  <div class="offset-sm-2 col-2 text-center">
                     <a href="logout.php" class="btn btn-primary form-control">ログアウト</a> 
                 </div>
+                <!--<a href=""><i class="fa fa-heart active"></i></a>-->
+                <!--<a href=""><i class="fa fa-heart"></i></a>-->
+               
+                <!--<form action="top.php" method="post" id="like">-->
+                    <!--<input type="hidden" name="name" value="shima">-->
+                    <!--<button class="icobutton icobutton-14-grey-pink"><span class="fa fa-heart"></span></button>-->
+                <!--</form>-->
             </div>
 
             <div class="row mt-5">
@@ -204,14 +231,16 @@
                     
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <button type="submit" name="likeOrUnlike" value="like">いいね</button>
+                        <!--<button type="submit" name="likeOrUnlike" value="like">いいね</button>-->
+                        <button type="submit" name="likeOrUnlike" value="like" class="clear-decoration"><i type="submit" class="fa fa-heart inactive"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
+                        <!--<button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>-->
+                        <button type="submit" name="likeOrUnlike" value="unlike" class="clear-decoration"><i type="submit" class="fa fa-heart active"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     <?php } ?>        
@@ -263,6 +292,10 @@
                 </div>
             </div>
         </div>
+                <div id="like">
+                    <button class="icobutton icobutton-9-grey-purple"><span class="fa fa-thumbs-up"></span></button>
+                    <button class="icobutton icobutton-14-grey-pink"><span class="fa fa-heart"></span></button>
+            </div>
 
     
         <!-- Optional JavaScript -->
