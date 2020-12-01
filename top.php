@@ -231,7 +231,6 @@
                     
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <!--<button type="submit" name="likeOrUnlike" value="like">いいね</button>-->
                         <button type="submit" name="likeOrUnlike" value="like" class="clear-decoration"><i type="submit" class="fa fa-heart inactive"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
@@ -239,7 +238,6 @@
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <!--<button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>-->
                         <button type="submit" name="likeOrUnlike" value="unlike" class="clear-decoration"><i type="submit" class="fa fa-heart active"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
@@ -270,17 +268,17 @@
                     
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <button type="submit" name="likeOrUnlike" value="like">いいね</button>
+                        <button type="submit" name="likeOrUnlike" value="like" class="clear-decoration"><i type="submit" class="fa fa-heart inactive"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
                     
                     <?php }else{ ?>
                     <form action="top.php" method="POST">
                         <input type="hidden" name="post_id" value="<?php print $post->id; ?>">
-                        <button type="submit" name="likeOrUnlike" value="unlike">いいね解除</button>
+                        <button type="submit" name="likeOrUnlike" value="unlike" class="clear-decoration"><i type="submit" class="fa fa-heart active"></i></button>
                         <span><a href="favoriting_users_lsit.php?post_id=<?php print $post->id; ?>"><?php print $post->favoriting_count($user_id); ?>いいね</a></span>
                     </form>
-                    <?php } ?>
+                    <?php } ?>      
                 </div>
                 <?php } ?>
             </div>
