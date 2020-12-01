@@ -292,12 +292,7 @@
                 </div>
             </div>
         </div>
-                <div id="like">
-                    <button class="icobutton icobutton-9-grey-purple"><span class="fa fa-thumbs-up"></span></button>
-                    <button class="icobutton icobutton-14-grey-pink"><span class="fa fa-heart"></span></button>
-            </div>
-
-    
+        
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS, then Font Awesome -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
